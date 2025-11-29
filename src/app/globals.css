@@ -11,9 +11,9 @@
 :root {
   /* Background & Foreground */
 
-  /* AZTEAM Primary (Red) */
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
+  /* AZTEAM Primary (Red) #E5192B */
+  --primary: #e5192b;
+  --primary-foreground: #ffffff;
   --primary-50: #fef2f2;
   --primary-100: #fee2e2;
   --primary-200: #fecaca;
@@ -185,8 +185,8 @@ html {
   --card-foreground: oklch(0.985 0 0);
   --popover: oklch(0.205 0 0);
   --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
+  --primary: #e5192b;
+  --primary-foreground: #ffffff;
   --secondary: oklch(0.269 0 0);
   --secondary-foreground: oklch(0.985 0 0);
   --muted: oklch(0.269 0 0);

@@ -14,6 +14,7 @@ Next.js 14+ e-commerce store for AZTEAM custom apparel with:
 
 - **Production Store**: https://azteamonline.com
 - **ERP API**: https://erp.azteamtech.com
+- **GitHub Repository**: https://github.com/gonoff/az_store
 
 ## Tech Stack
 
