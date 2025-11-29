@@ -1,0 +1,172 @@
+{
+  "metadata": {
+    "title": "AZTEAM Custom Apparel",
+    "description": "Custom apparel printing with quality and care. DTF and embroidery services for businesses and individuals."
+  },
+  "navigation": {
+    "home": "Home",
+    "products": "Products",
+    "about": "About",
+    "contact": "Contact",
+    "login": "Log in",
+    "register": "Register",
+    "logout": "Log out",
+    "cart": "Cart",
+    "account": "My Account",
+    "orders": "My Orders"
+  },
+  "header": {
+    "openMenu": "Open main menu",
+    "changeLanguage": "Change language",
+    "shoppingCart": "Shopping cart",
+    "userMenu": "User menu"
+  },
+  "footer": {
+    "brand": {
+      "name": "AZTEAM",
+      "description": "Custom apparel printing with quality and care. DTF and embroidery services for businesses and individuals."
+    },
+    "shop": {
+      "title": "Shop",
+      "allProducts": "All Products",
+      "tShirts": "T-Shirts",
+      "hoodies": "Hoodies",
+      "hats": "Hats"
+    },
+    "company": {
+      "title": "Company",
+      "about": "About Us",
+      "contact": "Contact",
+      "trackOrder": "Track Order"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Privacy Policy",
+      "terms": "Terms of Service",
+      "refunds": "Refund Policy"
+    },
+    "contact": {
+      "title": "Contact Us",
+      "email": "info@azteamonline.com",
+      "phone": "(123) 456-7890",
+      "address": "123 Main Street",
+      "cityState": "City, State 12345"
+    },
+    "copyright": "All rights reserved.",
+    "tagline": "Custom apparel, made with care."
+  },
+  "home": {
+    "hero": {
+      "title": "Custom Apparel Made Easy",
+      "subtitle": "Quality DTF printing and embroidery for businesses and individuals",
+      "cta": "Shop Now",
+      "secondary": "Learn More"
+    },
+    "features": {
+      "quality": {
+        "title": "Premium Quality",
+        "description": "High-quality DTF prints that last wash after wash"
+      },
+      "customization": {
+        "title": "Full Customization",
+        "description": "Design your own apparel with our 3D visualization tool"
+      },
+      "fast": {
+        "title": "Fast Turnaround",
+        "description": "Quick production times without compromising quality"
+      }
+    }
+  },
+  "products": {
+    "title": "Our Products",
+    "filters": {
+      "all": "All",
+      "shirts": "T-Shirts",
+      "hoodies": "Hoodies",
+      "hats": "Hats"
+    },
+    "sort": {
+      "label": "Sort by",
+      "newest": "Newest",
+      "priceAsc": "Price: Low to High",
+      "priceDesc": "Price: High to Low",
+      "popular": "Most Popular"
+    },
+    "addToCart": "Add to Cart",
+    "customize": "Customize",
+    "viewDetails": "View Details",
+    "outOfStock": "Out of Stock",
+    "loading": "Loading products..."
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "continueShopping": "Continue Shopping",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "checkout": "Proceed to Checkout",
+    "remove": "Remove",
+    "quantity": "Quantity",
+    "calculated": "Calculated at checkout"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "shipping": {
+      "title": "Shipping Information",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "phone": "Phone",
+      "address": "Address",
+      "city": "City",
+      "state": "State",
+      "zipCode": "ZIP Code",
+      "country": "Country"
+    },
+    "payment": {
+      "title": "Payment Method",
+      "card": "Credit Card",
+      "paypal": "PayPal",
+      "payLater": "Pay Later"
+    },
+    "review": {
+      "title": "Review Order",
+      "placeOrder": "Place Order"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Log In",
+      "email": "Email",
+      "password": "Password",
+      "submit": "Log In",
+      "forgotPassword": "Forgot Password?",
+      "noAccount": "Don't have an account?",
+      "signUp": "Sign Up"
+    },
+    "register": {
+      "title": "Create Account",
+      "firstName": "First Name",
+      "lastName": "Last Name",
+      "email": "Email",
+      "password": "Password",
+      "confirmPassword": "Confirm Password",
+      "submit": "Create Account",
+      "hasAccount": "Already have an account?",
+      "signIn": "Sign In"
+    }
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Try Again",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "noResults": "No results found"
+  }
+}

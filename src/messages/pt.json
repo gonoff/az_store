@@ -1,0 +1,172 @@
+{
+  "metadata": {
+    "title": "AZTEAM Vestuário Personalizado",
+    "description": "Impressão de vestuário personalizado com qualidade e cuidado. Serviços de DTF e bordado para empresas e indivíduos."
+  },
+  "navigation": {
+    "home": "Início",
+    "products": "Produtos",
+    "about": "Sobre",
+    "contact": "Contato",
+    "login": "Entrar",
+    "register": "Cadastrar",
+    "logout": "Sair",
+    "cart": "Carrinho",
+    "account": "Minha Conta",
+    "orders": "Meus Pedidos"
+  },
+  "header": {
+    "openMenu": "Abrir menu principal",
+    "changeLanguage": "Mudar idioma",
+    "shoppingCart": "Carrinho de compras",
+    "userMenu": "Menu do usuário"
+  },
+  "footer": {
+    "brand": {
+      "name": "AZTEAM",
+      "description": "Impressão de vestuário personalizado com qualidade e cuidado. Serviços de DTF e bordado para empresas e indivíduos."
+    },
+    "shop": {
+      "title": "Loja",
+      "allProducts": "Todos os Produtos",
+      "tShirts": "Camisetas",
+      "hoodies": "Moletons",
+      "hats": "Bonés"
+    },
+    "company": {
+      "title": "Empresa",
+      "about": "Sobre Nós",
+      "contact": "Contato",
+      "trackOrder": "Rastrear Pedido"
+    },
+    "legal": {
+      "title": "Legal",
+      "privacy": "Política de Privacidade",
+      "terms": "Termos de Serviço",
+      "refunds": "Política de Reembolso"
+    },
+    "contact": {
+      "title": "Contate-nos",
+      "email": "info@azteamonline.com",
+      "phone": "(123) 456-7890",
+      "address": "123 Main Street",
+      "cityState": "Cidade, Estado 12345"
+    },
+    "copyright": "Todos os direitos reservados.",
+    "tagline": "Vestuário personalizado, feito com cuidado."
+  },
+  "home": {
+    "hero": {
+      "title": "Vestuário Personalizado Fácil",
+      "subtitle": "Impressão DTF de qualidade e bordado para empresas e indivíduos",
+      "cta": "Comprar Agora",
+      "secondary": "Saiba Mais"
+    },
+    "features": {
+      "quality": {
+        "title": "Qualidade Premium",
+        "description": "Impressões DTF de alta qualidade que duram lavagem após lavagem"
+      },
+      "customization": {
+        "title": "Personalização Total",
+        "description": "Crie seu próprio vestuário com nossa ferramenta de visualização 3D"
+      },
+      "fast": {
+        "title": "Entrega Rápida",
+        "description": "Tempos de produção rápidos sem comprometer a qualidade"
+      }
+    }
+  },
+  "products": {
+    "title": "Nossos Produtos",
+    "filters": {
+      "all": "Todos",
+      "shirts": "Camisetas",
+      "hoodies": "Moletons",
+      "hats": "Bonés"
+    },
+    "sort": {
+      "label": "Ordenar por",
+      "newest": "Mais Recentes",
+      "priceAsc": "Preço: Menor para Maior",
+      "priceDesc": "Preço: Maior para Menor",
+      "popular": "Mais Populares"
+    },
+    "addToCart": "Adicionar ao Carrinho",
+    "customize": "Personalizar",
+    "viewDetails": "Ver Detalhes",
+    "outOfStock": "Esgotado",
+    "loading": "Carregando produtos..."
+  },
+  "cart": {
+    "title": "Carrinho de Compras",
+    "empty": "Seu carrinho está vazio",
+    "continueShopping": "Continuar Comprando",
+    "subtotal": "Subtotal",
+    "shipping": "Frete",
+    "tax": "Impostos",
+    "total": "Total",
+    "checkout": "Finalizar Compra",
+    "remove": "Remover",
+    "quantity": "Quantidade",
+    "calculated": "Calculado no checkout"
+  },
+  "checkout": {
+    "title": "Finalizar Compra",
+    "shipping": {
+      "title": "Informações de Entrega",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "E-mail",
+      "phone": "Telefone",
+      "address": "Endereço",
+      "city": "Cidade",
+      "state": "Estado",
+      "zipCode": "CEP",
+      "country": "País"
+    },
+    "payment": {
+      "title": "Método de Pagamento",
+      "card": "Cartão de Crédito",
+      "paypal": "PayPal",
+      "payLater": "Pagar Depois"
+    },
+    "review": {
+      "title": "Revisar Pedido",
+      "placeOrder": "Fazer Pedido"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": "Entrar",
+      "email": "E-mail",
+      "password": "Senha",
+      "submit": "Entrar",
+      "forgotPassword": "Esqueceu a Senha?",
+      "noAccount": "Não tem uma conta?",
+      "signUp": "Cadastre-se"
+    },
+    "register": {
+      "title": "Criar Conta",
+      "firstName": "Nome",
+      "lastName": "Sobrenome",
+      "email": "E-mail",
+      "password": "Senha",
+      "confirmPassword": "Confirmar Senha",
+      "submit": "Criar Conta",
+      "hasAccount": "Já tem uma conta?",
+      "signIn": "Entrar"
+    }
+  },
+  "common": {
+    "loading": "Carregando...",
+    "error": "Ocorreu um erro",
+    "retry": "Tentar Novamente",
+    "save": "Salvar",
+    "cancel": "Cancelar",
+    "delete": "Excluir",
+    "edit": "Editar",
+    "search": "Buscar",
+    "noResults": "Nenhum resultado encontrado"
+  }
+}
