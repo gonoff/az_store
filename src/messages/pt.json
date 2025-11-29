@@ -148,14 +148,50 @@
     },
     "register": {
       "title": "Criar Conta",
-      "firstName": "Nome",
-      "lastName": "Sobrenome",
+      "fullName": "Nome Completo",
       "email": "E-mail",
+      "phone": "Telefone",
       "password": "Senha",
       "confirmPassword": "Confirmar Senha",
       "submit": "Criar Conta",
       "hasAccount": "Já tem uma conta?",
       "signIn": "Entrar"
+    },
+    "forgotPassword": {
+      "title": "Redefinir Senha",
+      "description": "Digite seu e-mail e enviaremos um link para redefinir sua senha.",
+      "submit": "Enviar Link de Redefinição",
+      "success": "Se existir uma conta com este e-mail, enviamos instruções para redefinir a senha.",
+      "backToLogin": "Voltar ao Login"
+    },
+    "resetPassword": {
+      "title": "Definir Nova Senha",
+      "description": "Digite sua nova senha abaixo.",
+      "submit": "Redefinir Senha",
+      "success": "Sua senha foi redefinida com sucesso.",
+      "invalidLink": "Link Inválido",
+      "expiredLink": "Este link de redefinição de senha é inválido ou expirou.",
+      "requestNew": "Solicitar Novo Link"
+    },
+    "verifyEmail": {
+      "title": "Verifique seu E-mail",
+      "description": "Digite seu e-mail para receber um novo link de verificação.",
+      "submit": "Reenviar E-mail de Verificação",
+      "success": "E-mail Verificado",
+      "successMessage": "Seu e-mail foi verificado com sucesso.",
+      "failed": "Verificação Falhou",
+      "expired": "Este link de verificação expirou.",
+      "invalid": "Este link de verificação é inválido."
+    },
+    "errors": {
+      "invalidCredentials": "E-mail ou senha inválidos",
+      "emailRequired": "E-mail é obrigatório",
+      "passwordRequired": "Senha é obrigatória",
+      "passwordMinLength": "A senha deve ter pelo menos 8 caracteres",
+      "passwordsDoNotMatch": "As senhas não coincidem",
+      "emailInvalid": "Por favor, digite um e-mail válido",
+      "phoneInvalid": "Por favor, digite um telefone válido",
+      "nameRequired": "Nome é obrigatório"
     }
   },
   "common": {

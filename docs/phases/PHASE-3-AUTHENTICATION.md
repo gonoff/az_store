@@ -1,6 +1,6 @@
 # Phase 3: Authentication System
 
-**Status**: ⏳ Pending
+**Status**: ✅ Completed
 **Dependencies**: Phase 2 (API Layer)
 
 ## Overview
@@ -15,6 +15,61 @@ Implement JWT-based authentication with httpOnly cookies, protected routes, and 
 - Protected route middleware
 - Auth state management
 - Token refresh mechanism
+
+---
+
+## CRITICAL: Environment Variables for API Routes
+
+### The NEXT*PUBLIC* Problem
+
+**IMPORTANT**: `NEXT_PUBLIC_*` environment variables are replaced at **build time** by Next.js/Turbopack, not runtime. This causes issues when:
+
+1. You set `NEXT_PUBLIC_API_URL=http://localhost/erp` in `.env.local`
+2. But the **default** value in your code or `.env` uses `https://erp.azteamtech.com`
+3. The build-time replacement may use the wrong value
+
+### Solution: Use Server-Side Environment Variables
+
+For API routes that call the ERP backend, use a **non-prefixed** environment variable that is read at runtime:
+
+```bash
+# .env or .env.local
+
+# Client-side (build-time replacement) - for client components
+NEXT_PUBLIC_API_URL=http://localhost/erp
+
+# Server-side (runtime) - REQUIRED for API routes
+ERP_API_URL=http://localhost/erp
+```
+
+### Usage in API Routes
+
+```typescript
+// ❌ WRONG - NEXT_PUBLIC_ is replaced at build time, may use wrong default
+const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`);
+
+// ✅ CORRECT - Read from getServerEnv() at runtime
+import { getServerEnv } from '@/lib/env';
+
+export async function POST(request: NextRequest) {
+  const { ERP_API_URL, JWT_COOKIE_NAME, NODE_ENV } = getServerEnv();
+
+  const response = await fetch(`${ERP_API_URL}/api/auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+}
+```
+
+### Best Practices
+
+1. **Never hardcode API URLs** in source code
+2. **Always use `getServerEnv()`** in API routes for ERP_API_URL
+3. **Use `clientEnv`** only for client-side components
+4. **Document both variables** in `.env` with clear explanations
+5. **Restart dev server** after changing environment variables
+6. **No fallback defaults** for API URLs - require explicit configuration
 
 ---
 
@@ -45,13 +100,13 @@ Implement JWT-based authentication with httpOnly cookies, protected routes, and 
 
 ```typescript
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
-import { env } from '@/lib/env';
+import { getServerEnv } from '@/lib/env';
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
+  const { ERP_API_URL, JWT_COOKIE_NAME, NODE_ENV } = getServerEnv();
 
-  const response = await fetch(`${env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
+  const response = await fetch(`${ERP_API_URL}/api/auth/login`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -60,31 +115,33 @@ export async function POST(request: NextRequest) {
   const data = await response.json();
 
   if (data.success) {
-    const cookieStore = await cookies();
+    const { access_token, refresh_token, expires_in, customer } = data.data;
 
-    // Store access token
-    cookieStore.set('access_token', data.data.access_token, {
+    // Return customer data (tokens stored in httpOnly cookies only)
+    const res = NextResponse.json({
+      success: true,
+      data: { customer },
+    });
+
+    // Store access token in httpOnly cookie
+    res.cookies.set(`${JWT_COOKIE_NAME}_access`, access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: data.data.expires_in,
+      maxAge: expires_in,
       path: '/',
     });
 
-    // Store refresh token
-    cookieStore.set('refresh_token', data.data.refresh_token, {
+    // Store refresh token in httpOnly cookie
+    res.cookies.set(`${JWT_COOKIE_NAME}_refresh`, refresh_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 30 * 24 * 60 * 60, // 30 days
       path: '/',
     });
 
-    // Return customer data (not tokens)
-    return NextResponse.json({
-      success: true,
-      data: { customer: data.data.customer },
-    });
+    return res;
   }
 
   return NextResponse.json(data, { status: response.status });

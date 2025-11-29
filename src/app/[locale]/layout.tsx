@@ -5,6 +5,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
 import { routing } from '@/i18n/routing';
 import { MainLayout } from '@/components/layout';
+import { QueryProvider } from '@/lib/query/provider';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import '../globals.css';
 
 const geistSans = Geist({
@@ -63,7 +65,11 @@ export default async function LocaleLayout({
     <html lang={locale}>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <NextIntlClientProvider messages={messages}>
-          <MainLayout locale={locale}>{children}</MainLayout>
+          <QueryProvider>
+            <AuthProvider>
+              <MainLayout locale={locale}>{children}</MainLayout>
+            </AuthProvider>
+          </QueryProvider>
         </NextIntlClientProvider>
       </body>
     </html>

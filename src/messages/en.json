@@ -148,14 +148,50 @@
     },
     "register": {
       "title": "Create Account",
-      "firstName": "First Name",
-      "lastName": "Last Name",
+      "fullName": "Full Name",
       "email": "Email",
+      "phone": "Phone Number",
       "password": "Password",
       "confirmPassword": "Confirm Password",
       "submit": "Create Account",
       "hasAccount": "Already have an account?",
       "signIn": "Sign In"
+    },
+    "forgotPassword": {
+      "title": "Reset Password",
+      "description": "Enter your email and we'll send you a link to reset your password.",
+      "submit": "Send Reset Link",
+      "success": "If an account exists with this email, we've sent password reset instructions.",
+      "backToLogin": "Back to Login"
+    },
+    "resetPassword": {
+      "title": "Set New Password",
+      "description": "Enter your new password below.",
+      "submit": "Reset Password",
+      "success": "Your password has been reset successfully.",
+      "invalidLink": "Invalid Link",
+      "expiredLink": "This password reset link is invalid or has expired.",
+      "requestNew": "Request a New Link"
+    },
+    "verifyEmail": {
+      "title": "Verify Your Email",
+      "description": "Enter your email to receive a new verification link.",
+      "submit": "Resend Verification Email",
+      "success": "Email Verified",
+      "successMessage": "Your email has been verified successfully.",
+      "failed": "Verification Failed",
+      "expired": "This verification link has expired.",
+      "invalid": "This verification link is invalid."
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailRequired": "Email is required",
+      "passwordRequired": "Password is required",
+      "passwordMinLength": "Password must be at least 8 characters",
+      "passwordsDoNotMatch": "Passwords do not match",
+      "emailInvalid": "Please enter a valid email address",
+      "phoneInvalid": "Please enter a valid phone number",
+      "nameRequired": "Name is required"
     }
   },
   "common": {

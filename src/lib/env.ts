@@ -7,9 +7,10 @@ import { z } from 'zod';
 
 // Schema for client-side environment variables (exposed to browser)
 const clientEnvSchema = z.object({
-  NEXT_PUBLIC_API_URL: z.string().url().default('https://erp.azteamtech.com'),
+  // Use string() instead of url() to allow localhost URLs without port
+  NEXT_PUBLIC_API_URL: z.string().min(1),
   NEXT_PUBLIC_STORE_NAME: z.string().default('AZTEAM Custom Apparel'),
-  NEXT_PUBLIC_STORE_URL: z.string().url().optional(),
+  NEXT_PUBLIC_STORE_URL: z.string().optional(),
   NEXT_PUBLIC_DEFAULT_LOCALE: z.enum(['en', 'pt']).default('en'),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   NEXT_PUBLIC_PAYPAL_CLIENT_ID: z.string().optional(),
@@ -18,6 +19,8 @@ const clientEnvSchema = z.object({
 
 // Schema for server-side environment variables (never exposed to browser)
 const serverEnvSchema = z.object({
+  // ERP API URL for server-side API routes (not subject to NEXT_PUBLIC_ build-time replacement)
+  ERP_API_URL: z.string().min(1),
   JWT_COOKIE_NAME: z.string().default('azteam_auth'),
   JWT_COOKIE_SECRET: z.string().min(32).optional(),
   STRIPE_SECRET_KEY: z.string().optional(),
@@ -47,8 +50,9 @@ function validateEnv(): Env {
 }
 
 // Client-safe environment variables (can be accessed in browser)
+// Note: NEXT_PUBLIC_API_URL must be set in .env or .env.local - no fallback
 export const clientEnv: ClientEnv = {
-  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL ?? 'https://erp.azteamtech.com',
+  NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL!,
   NEXT_PUBLIC_STORE_NAME: process.env.NEXT_PUBLIC_STORE_NAME ?? 'AZTEAM Custom Apparel',
   NEXT_PUBLIC_STORE_URL: process.env.NEXT_PUBLIC_STORE_URL,
   NEXT_PUBLIC_DEFAULT_LOCALE: (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as 'en' | 'pt') ?? 'en',
@@ -64,6 +68,7 @@ export function getServerEnv(): ServerEnv {
   }
 
   return {
+    ERP_API_URL: process.env.ERP_API_URL!,
     JWT_COOKIE_NAME: process.env.JWT_COOKIE_NAME ?? 'azteam_auth',
     JWT_COOKIE_SECRET: process.env.JWT_COOKIE_SECRET,
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,

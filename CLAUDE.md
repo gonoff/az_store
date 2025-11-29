@@ -113,9 +113,38 @@ npm run storybook    # Start Storybook
 
 ## Environment Variables
 
-- See `.env.example` for all available variables
-- Copy to `.env.local` for local development
-- Required: `NEXT_PUBLIC_API_URL`, `JWT_COOKIE_NAME`, `JWT_COOKIE_SECRET`
+### Critical: Client vs Server Environment Variables
+
+**IMPORTANT**: Next.js handles `NEXT_PUBLIC_*` variables differently:
+
+- `NEXT_PUBLIC_*` variables are replaced at **BUILD TIME**
+- Non-prefixed variables are read at **RUNTIME**
+
+For API routes that call the ERP backend, **always use `ERP_API_URL`** (server-side):
+
+```typescript
+// ❌ WRONG - in API routes, NEXT_PUBLIC_ may have wrong build-time value
+const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`);
+
+// ✅ CORRECT - use getServerEnv() for runtime values
+import { getServerEnv } from '@/lib/env';
+const { ERP_API_URL } = getServerEnv();
+const response = await fetch(`${ERP_API_URL}/api/auth/login`);
+```
+
+### Required Variables
+
+| Variable              | Type        | Purpose                                  |
+| --------------------- | ----------- | ---------------------------------------- |
+| `ERP_API_URL`         | Server-side | API routes calling ERP backend (runtime) |
+| `NEXT_PUBLIC_API_URL` | Client-side | Client components (build-time)           |
+| `JWT_COOKIE_NAME`     | Server-side | Cookie name prefix for auth tokens       |
+
+### Configuration Files
+
+- `.env` - Base configuration (committed to repo)
+- `.env.local` - Local overrides (never committed)
+- See `.env` for all available variables with documentation
 
 ## Deployment
 
@@ -147,3 +176,12 @@ npm run storybook    # Start Storybook
 - Run `npm run typecheck` before committing
 - All components should have Storybook stories
 - Test coverage target: 80%+
+
+### Environment Variables - CRITICAL
+
+- **NEVER hardcode API URLs** - always use environment variables
+- **In API routes**: Use `getServerEnv().ERP_API_URL` (runtime)
+- **In client components**: Use `clientEnv.NEXT_PUBLIC_API_URL` (build-time)
+- **No fallback defaults** for API URLs - require explicit configuration
+- **Search for existing patterns** before adding new env vars
+- See `docs/phases/PHASE-3-AUTHENTICATION.md` for detailed env var documentation

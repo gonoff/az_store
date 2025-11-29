@@ -15,6 +15,8 @@ import {
 import { Container } from './Container';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { locales, localeNames, type Locale } from '@/i18n/config';
+import { useAuthStore } from '@/lib/stores/auth';
+import { UserMenu } from '@/components/auth';
 
 interface HeaderProps {
   locale?: string;
@@ -27,6 +29,8 @@ export function Header({ locale = 'en', cartItemCount = 0 }: HeaderProps) {
   const tHeader = useTranslations('header');
   const pathname = usePathname();
   const router = useRouter();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const customer = useAuthStore((state) => state.customer);
 
   const navigation = [
     { name: t('home'), href: '/' },
@@ -80,13 +84,38 @@ export function Header({ locale = 'en', cartItemCount = 0 }: HeaderProps) {
                       ))}
                     </div>
                     <div className="py-6">
-                      <Link
-                        href="/login"
-                        className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-foreground hover:bg-muted"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        {t('login')}
-                      </Link>
+                      {isAuthenticated ? (
+                        <>
+                          <div className="mb-4 px-3">
+                            <p className="text-sm font-medium text-foreground">
+                              {customer?.full_name}
+                            </p>
+                            <p className="text-xs text-muted-foreground">{customer?.email}</p>
+                          </div>
+                          <Link
+                            href="/account"
+                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-foreground hover:bg-muted"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {t('account')}
+                          </Link>
+                          <Link
+                            href="/orders"
+                            className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-foreground hover:bg-muted"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            {t('orders')}
+                          </Link>
+                        </>
+                      ) : (
+                        <Link
+                          href="/login"
+                          className="-mx-3 block rounded-lg px-3 py-2.5 text-base font-semibold leading-7 text-foreground hover:bg-muted"
+                          onClick={() => setMobileMenuOpen(false)}
+                        >
+                          {t('login')}
+                        </Link>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -143,23 +172,27 @@ export function Header({ locale = 'en', cartItemCount = 0 }: HeaderProps) {
               </Button>
             </Link>
 
-            {/* User menu */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon">
-                  <User className="h-5 w-5" />
-                  <span className="sr-only">{tHeader('userMenu')}</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/login">{t('login')}</Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/register">{t('register')}</Link>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* User menu - Show UserMenu if authenticated, otherwise show login dropdown */}
+            {isAuthenticated ? (
+              <UserMenu />
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <User className="h-5 w-5" />
+                    <span className="sr-only">{tHeader('userMenu')}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem asChild>
+                    <Link href="/login">{t('login')}</Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/register">{t('register')}</Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </nav>
       </Container>
