@@ -9,12 +9,26 @@ import { z } from 'zod';
 const clientEnvSchema = z.object({
   // Use string() instead of url() to allow localhost URLs without port
   NEXT_PUBLIC_API_URL: z.string().min(1),
-  NEXT_PUBLIC_STORE_NAME: z.string().default('AZTEAM Custom Apparel'),
+  NEXT_PUBLIC_STORE_NAME: z.string().default('AZ Team Custom Apparel'),
   NEXT_PUBLIC_STORE_URL: z.string().optional(),
   NEXT_PUBLIC_DEFAULT_LOCALE: z.enum(['en', 'pt']).default('en'),
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: z.string().optional(),
   NEXT_PUBLIC_PAYPAL_CLIENT_ID: z.string().optional(),
   NEXT_PUBLIC_GA_MEASUREMENT_ID: z.string().optional(),
+  // Company details
+  NEXT_PUBLIC_COMPANY_EMAIL: z.string().optional(),
+  NEXT_PUBLIC_COMPANY_PHONE: z.string().optional(),
+  NEXT_PUBLIC_COMPANY_ADDRESS: z.string().optional(),
+  NEXT_PUBLIC_COMPANY_CITY_STATE: z.string().optional(),
+  NEXT_PUBLIC_COMPANY_COUNTRY: z.string().optional(),
+  NEXT_PUBLIC_WORKING_HOURS_WEEKDAY: z.string().optional(),
+  NEXT_PUBLIC_WORKING_HOURS_WEEKEND: z.string().optional(),
+  // Social media
+  NEXT_PUBLIC_SOCIAL_FACEBOOK: z.string().optional(),
+  NEXT_PUBLIC_SOCIAL_INSTAGRAM: z.string().optional(),
+  NEXT_PUBLIC_SOCIAL_TWITTER: z.string().optional(),
+  // Customer portal
+  NEXT_PUBLIC_PORTAL_URL: z.string().optional(),
 });
 
 // Schema for server-side environment variables (never exposed to browser)
@@ -53,12 +67,26 @@ function validateEnv(): Env {
 // Note: NEXT_PUBLIC_API_URL must be set in .env or .env.local - no fallback
 export const clientEnv: ClientEnv = {
   NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL!,
-  NEXT_PUBLIC_STORE_NAME: process.env.NEXT_PUBLIC_STORE_NAME ?? 'AZTEAM Custom Apparel',
+  NEXT_PUBLIC_STORE_NAME: process.env.NEXT_PUBLIC_STORE_NAME ?? 'AZ Team Custom Apparel',
   NEXT_PUBLIC_STORE_URL: process.env.NEXT_PUBLIC_STORE_URL,
   NEXT_PUBLIC_DEFAULT_LOCALE: (process.env.NEXT_PUBLIC_DEFAULT_LOCALE as 'en' | 'pt') ?? 'en',
   NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   NEXT_PUBLIC_PAYPAL_CLIENT_ID: process.env.NEXT_PUBLIC_PAYPAL_CLIENT_ID,
   NEXT_PUBLIC_GA_MEASUREMENT_ID: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID,
+  // Company details
+  NEXT_PUBLIC_COMPANY_EMAIL: process.env.NEXT_PUBLIC_COMPANY_EMAIL,
+  NEXT_PUBLIC_COMPANY_PHONE: process.env.NEXT_PUBLIC_COMPANY_PHONE,
+  NEXT_PUBLIC_COMPANY_ADDRESS: process.env.NEXT_PUBLIC_COMPANY_ADDRESS,
+  NEXT_PUBLIC_COMPANY_CITY_STATE: process.env.NEXT_PUBLIC_COMPANY_CITY_STATE,
+  NEXT_PUBLIC_COMPANY_COUNTRY: process.env.NEXT_PUBLIC_COMPANY_COUNTRY,
+  NEXT_PUBLIC_WORKING_HOURS_WEEKDAY: process.env.NEXT_PUBLIC_WORKING_HOURS_WEEKDAY,
+  NEXT_PUBLIC_WORKING_HOURS_WEEKEND: process.env.NEXT_PUBLIC_WORKING_HOURS_WEEKEND,
+  // Social media
+  NEXT_PUBLIC_SOCIAL_FACEBOOK: process.env.NEXT_PUBLIC_SOCIAL_FACEBOOK,
+  NEXT_PUBLIC_SOCIAL_INSTAGRAM: process.env.NEXT_PUBLIC_SOCIAL_INSTAGRAM,
+  NEXT_PUBLIC_SOCIAL_TWITTER: process.env.NEXT_PUBLIC_SOCIAL_TWITTER,
+  // Customer portal
+  NEXT_PUBLIC_PORTAL_URL: process.env.NEXT_PUBLIC_PORTAL_URL,
 };
 
 // Server-only environment variables (only accessible in server components/API routes)

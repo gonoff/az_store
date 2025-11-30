@@ -8,7 +8,7 @@ import { getServerEnv } from '@/lib/env';
 
 export async function POST() {
   try {
-    const { JWT_COOKIE_NAME } = getServerEnv();
+    const { JWT_COOKIE_NAME, NODE_ENV } = getServerEnv();
 
     const response = NextResponse.json({
       success: true,
@@ -18,7 +18,7 @@ export async function POST() {
     // Clear access token cookie
     response.cookies.set(`${JWT_COOKIE_NAME}_access`, '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 0,
       path: '/',
@@ -27,7 +27,7 @@ export async function POST() {
     // Clear refresh token cookie
     response.cookies.set(`${JWT_COOKIE_NAME}_refresh`, '', {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      secure: NODE_ENV === 'production',
       sameSite: 'strict',
       maxAge: 0,
       path: '/',

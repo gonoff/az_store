@@ -4,19 +4,17 @@ import { useTranslations } from 'next-intl';
 import { Facebook, Instagram, Twitter, Mail, Phone, MapPin } from 'lucide-react';
 import { Container } from './Container';
 import { Separator } from '@/components/ui/separator';
+import { Logo } from '@/components/ui/Logo';
 import { Link } from '@/i18n/navigation';
-
-interface FooterProps {
-  locale?: string;
-}
+import { clientEnv } from '@/lib/env';
 
 const social = [
-  { name: 'Facebook', href: '#', icon: Facebook },
-  { name: 'Instagram', href: '#', icon: Instagram },
-  { name: 'Twitter', href: '#', icon: Twitter },
+  { name: 'Facebook', href: clientEnv.NEXT_PUBLIC_SOCIAL_FACEBOOK || '#', icon: Facebook },
+  { name: 'Instagram', href: clientEnv.NEXT_PUBLIC_SOCIAL_INSTAGRAM || '#', icon: Instagram },
+  { name: 'Twitter', href: clientEnv.NEXT_PUBLIC_SOCIAL_TWITTER || '#', icon: Twitter },
 ];
 
-export function Footer(_props: FooterProps) {
+export function Footer() {
   const currentYear = new Date().getFullYear();
   const t = useTranslations('footer');
 
@@ -31,6 +29,15 @@ export function Footer(_props: FooterProps) {
       { name: t('company.about'), href: '/about' },
       { name: t('company.contact'), href: '/contact' },
       { name: t('company.trackOrder'), href: '/track' },
+      ...(clientEnv.NEXT_PUBLIC_PORTAL_URL
+        ? [
+            {
+              name: t('company.customerPortal'),
+              href: clientEnv.NEXT_PUBLIC_PORTAL_URL,
+              external: true,
+            },
+          ]
+        : []),
     ],
     legal: [
       { name: t('legal.privacy'), href: '/privacy' },
@@ -46,9 +53,7 @@ export function Footer(_props: FooterProps) {
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-4">
             {/* Brand */}
             <div className="lg:col-span-1">
-              <Link href="/" className="inline-block">
-                <span className="text-2xl font-bold text-primary">{t('brand.name')}</span>
-              </Link>
+              <Logo size="lg" href="/" />
               <p className="mt-4 text-sm text-muted-foreground">{t('brand.description')}</p>
               {/* Social Links */}
               <div className="mt-6 flex space-x-4">
@@ -89,12 +94,23 @@ export function Footer(_props: FooterProps) {
                 <ul className="mt-4 space-y-3">
                   {navigation.company.map((item) => (
                     <li key={item.name}>
-                      <Link
-                        href={item.href}
-                        className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                      >
-                        {item.name}
-                      </Link>
+                      {'external' in item && item.external ? (
+                        <a
+                          href={item.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                        >
+                          {item.name}
+                        </a>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                        >
+                          {item.name}
+                        </Link>
+                      )}
                     </li>
                   ))}
                 </ul>
@@ -120,32 +136,40 @@ export function Footer(_props: FooterProps) {
             <div className="lg:col-span-1">
               <h3 className="text-sm font-semibold text-foreground">{t('contact.title')}</h3>
               <ul className="mt-4 space-y-3">
-                <li className="flex items-start gap-3">
-                  <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                  <a
-                    href={`mailto:${t('contact.email')}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    {t('contact.email')}
-                  </a>
-                </li>
-                <li className="flex items-start gap-3">
-                  <Phone className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                  <a
-                    href={`tel:${t('contact.phone').replace(/[^0-9+]/g, '')}`}
-                    className="text-sm text-muted-foreground transition-colors hover:text-primary"
-                  >
-                    {t('contact.phone')}
-                  </a>
-                </li>
-                <li className="flex items-start gap-3">
-                  <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
-                  <span className="text-sm text-muted-foreground">
-                    {t('contact.address')}
-                    <br />
-                    {t('contact.cityState')}
-                  </span>
-                </li>
+                {clientEnv.NEXT_PUBLIC_COMPANY_EMAIL && (
+                  <li className="flex items-start gap-3">
+                    <Mail className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                    <a
+                      href={`mailto:${clientEnv.NEXT_PUBLIC_COMPANY_EMAIL}`}
+                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      {clientEnv.NEXT_PUBLIC_COMPANY_EMAIL}
+                    </a>
+                  </li>
+                )}
+                {clientEnv.NEXT_PUBLIC_COMPANY_PHONE && (
+                  <li className="flex items-start gap-3">
+                    <Phone className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                    <a
+                      href={`tel:${clientEnv.NEXT_PUBLIC_COMPANY_PHONE.replace(/[^0-9+]/g, '')}`}
+                      className="text-sm text-muted-foreground transition-colors hover:text-primary"
+                    >
+                      {clientEnv.NEXT_PUBLIC_COMPANY_PHONE}
+                    </a>
+                  </li>
+                )}
+                {(clientEnv.NEXT_PUBLIC_COMPANY_ADDRESS ||
+                  clientEnv.NEXT_PUBLIC_COMPANY_CITY_STATE) && (
+                  <li className="flex items-start gap-3">
+                    <MapPin className="mt-0.5 h-4 w-4 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {clientEnv.NEXT_PUBLIC_COMPANY_ADDRESS}
+                      {clientEnv.NEXT_PUBLIC_COMPANY_ADDRESS &&
+                        clientEnv.NEXT_PUBLIC_COMPANY_CITY_STATE && <br />}
+                      {clientEnv.NEXT_PUBLIC_COMPANY_CITY_STATE}
+                    </span>
+                  </li>
+                )}
               </ul>
             </div>
           </div>
@@ -155,7 +179,7 @@ export function Footer(_props: FooterProps) {
           {/* Copyright */}
           <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
             <p className="text-xs text-muted-foreground">
-              &copy; {currentYear} {t('brand.name')}. {t('copyright')}
+              &copy; {currentYear} {clientEnv.NEXT_PUBLIC_STORE_NAME}. {t('copyright')}
             </p>
             <p className="text-xs text-muted-foreground">{t('tagline')}</p>
           </div>

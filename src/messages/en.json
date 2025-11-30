@@ -37,7 +37,8 @@
       "title": "Company",
       "about": "About Us",
       "contact": "Contact",
-      "trackOrder": "Track Order"
+      "trackOrder": "Track Order",
+      "customerPortal": "Customer Portal"
     },
     "legal": {
       "title": "Legal",
@@ -75,6 +76,16 @@
         "title": "Fast Turnaround",
         "description": "Quick production times without compromising quality"
       }
+    },
+    "portal": {
+      "title": "Track Your Order",
+      "description": "Check your order status, view production progress, and approve your artwork design through our customer portal.",
+      "cta": "Go to Portal",
+      "features": {
+        "tracking": "Real-time order tracking",
+        "artwork": "Artwork approval system",
+        "updates": "Production stage updates"
+      }
     }
   },
   "products": {
@@ -96,7 +107,8 @@
     "customize": "Customize",
     "viewDetails": "View Details",
     "outOfStock": "Out of Stock",
-    "loading": "Loading products..."
+    "loading": "Loading products...",
+    "startingAt": "Starting at (front & back)"
   },
   "cart": {
     "title": "Shopping Cart",

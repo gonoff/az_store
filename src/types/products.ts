@@ -169,8 +169,29 @@ export interface PriceCalculationRequest {
  */
 export interface DesignCost {
   area: string;
+  area_group?: string;
   size: string;
   cost: number;
+}
+
+/**
+ * Base price breakdown (default configuration)
+ */
+export interface BasePrice {
+  blank_cost: number;
+  default_front: number;
+  default_back: number;
+  total: number;
+}
+
+/**
+ * Price adjustment from default configuration
+ */
+export interface PriceAdjustment {
+  area: string;
+  size: string;
+  adjustment: number;
+  label: string;
 }
 
 /**
@@ -180,7 +201,9 @@ export interface PricingBreakdown {
   blank_cost: number;
   design_costs: DesignCost[];
   design_total: number;
-  labor_profit: number;
+  base_fee: number;
+  base_price: BasePrice;
+  adjustments: PriceAdjustment[];
   per_item_price: number;
   quantity: number;
   total: number;

@@ -13,6 +13,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Container } from './Container';
+import { Logo } from '@/components/ui/Logo';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
 import { locales, localeNames, type Locale } from '@/i18n/config';
 import { useAuthStore } from '@/lib/stores/auth';
@@ -49,9 +50,7 @@ export function Header({ locale = 'en', cartItemCount = 0 }: HeaderProps) {
         <nav className="flex h-16 items-center justify-between">
           {/* Logo */}
           <div className="flex lg:flex-1">
-            <Link href="/" className="-m-1.5 p-1.5">
-              <span className="text-2xl font-bold text-primary">AZTEAM</span>
-            </Link>
+            <Logo size="md" href="/" />
           </div>
 
           {/* Mobile menu button */}
@@ -65,8 +64,8 @@ export function Header({ locale = 'en', cartItemCount = 0 }: HeaderProps) {
               </SheetTrigger>
               <SheetContent side="right" className="w-full max-w-sm">
                 <SheetHeader>
-                  <SheetTitle className="text-left text-2xl font-bold text-primary">
-                    AZTEAM
+                  <SheetTitle asChild>
+                    <Logo size="lg" href="/" />
                   </SheetTitle>
                 </SheetHeader>
                 <div className="mt-6 flow-root">

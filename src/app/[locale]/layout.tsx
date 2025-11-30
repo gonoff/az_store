@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Geist, Geist_Mono } from 'next/font/google';
+import { Geist, Geist_Mono, Anek_Devanagari } from 'next/font/google';
 import { notFound } from 'next/navigation';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages, setRequestLocale } from 'next-intl/server';
@@ -17,6 +17,12 @@ const geistSans = Geist({
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
   subsets: ['latin'],
+});
+
+const anekDevanagari = Anek_Devanagari({
+  variable: '--font-heading',
+  subsets: ['latin'],
+  display: 'swap',
 });
 
 export function generateStaticParams() {
@@ -63,7 +69,9 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${anekDevanagari.variable} antialiased`}
+      >
         <NextIntlClientProvider messages={messages}>
           <QueryProvider>
             <AuthProvider>

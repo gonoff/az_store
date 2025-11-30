@@ -37,7 +37,8 @@
       "title": "Empresa",
       "about": "Sobre Nós",
       "contact": "Contato",
-      "trackOrder": "Rastrear Pedido"
+      "trackOrder": "Rastrear Pedido",
+      "customerPortal": "Portal do Cliente"
     },
     "legal": {
       "title": "Legal",
@@ -75,6 +76,16 @@
         "title": "Entrega Rápida",
         "description": "Tempos de produção rápidos sem comprometer a qualidade"
       }
+    },
+    "portal": {
+      "title": "Rastreie Seu Pedido",
+      "description": "Acompanhe o status do seu pedido, veja o progresso da produção e aprove o design da sua arte através do nosso portal do cliente.",
+      "cta": "Ir para o Portal",
+      "features": {
+        "tracking": "Rastreamento em tempo real",
+        "artwork": "Sistema de aprovação de arte",
+        "updates": "Atualizações de produção"
+      }
     }
   },
   "products": {
@@ -96,7 +107,8 @@
     "customize": "Personalizar",
     "viewDetails": "Ver Detalhes",
     "outOfStock": "Esgotado",
-    "loading": "Carregando produtos..."
+    "loading": "Carregando produtos...",
+    "startingAt": "A partir de (frente e costas)"
   },
   "cart": {
     "title": "Carrinho de Compras",

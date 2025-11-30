@@ -1,6 +1,6 @@
 # Phase 4: Product Catalog
 
-**Status**: ⏳ Pending
+**Status**: ✅ Complete
 **Dependencies**: Phase 2 (API Layer), Phase 3 (Authentication)
 
 ## Overview
@@ -157,6 +157,8 @@ export function ProductGrid({ filters }: ProductGridProps) {
 
 **File**: `src/components/product/ProductCard.tsx`
 
+Uses static PNG thumbnails and displays the **default price** (blank + $9 customization).
+
 ```typescript
 'use client';
 
@@ -166,57 +168,76 @@ import { Link } from '@/i18n/navigation';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import type { Product } from '@/types/api';
+import type { Product } from '@/types';
 
 interface ProductCardProps {
   product: Product;
 }
 
+// Map product types to thumbnail images
+const THUMBNAIL_MAP: Record<string, string> = {
+  shirt: '/images/products/shirt.png',
+  hoodie: '/images/products/hoodie.png',
+  hat: '/images/products/hat.png',
+  bag: '/images/products/bag.png',
+  apron: '/images/products/apron.png',
+};
+
+const getThumbnail = (type: string) => THUMBNAIL_MAP[type] || THUMBNAIL_MAP.shirt;
+
+// Default customization cost (Front Tiny $3 + Back Medium $6 for DTF)
+const DEFAULT_CUSTOMIZATION_COST = 9.0;
+
 export function ProductCard({ product }: ProductCardProps) {
   const t = useTranslations('products');
 
-  // Placeholder image based on product type
-  const imageSrc = `/images/products/${product.type}-placeholder.jpg`;
-
   return (
-    <Card className="group overflow-hidden">
+    <Card className="group overflow-hidden transition-shadow hover:shadow-lg">
       <Link href={`/products/${product.id}`}>
-        <div className="relative aspect-square overflow-hidden bg-muted">
-          {/* 3D Preview or Placeholder Image */}
-          <div className="flex h-full items-center justify-center bg-gradient-to-br from-muted to-muted/50">
-            <span className="text-4xl text-muted-foreground">
-              {product.type === 'shirt' && '👕'}
-              {product.type === 'hoodie' && '🧥'}
-              {product.type === 'hat' && '🧢'}
-              {product.type === 'bag' && '👜'}
-              {product.type === 'apron' && '👨‍🍳'}
-            </span>
-          </div>
+        <div className="relative aspect-square overflow-hidden bg-gradient-to-br from-muted to-muted/50">
+          {/* Product Thumbnail */}
+          <Image
+            src={getThumbnail(product.type)}
+            alt={product.display_name}
+            fill
+            className="object-contain p-4 transition-transform group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
 
           {/* Hover overlay */}
           <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-            <Button variant="secondary">{t('viewDetails')}</Button>
+            <Button variant="secondary" size="sm">
+              {t('viewDetails')}
+            </Button>
           </div>
+
+          {/* Gender badge */}
+          <Badge variant="secondary" className="absolute right-2 top-2 capitalize">
+            {product.gender}
+          </Badge>
         </div>
       </Link>
 
       <CardContent className="p-4">
-        <div className="flex items-start justify-between gap-2">
-          <div>
-            <h3 className="font-semibold line-clamp-2">{product.display_name}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {product.product.brand}
-            </p>
-          </div>
-          <Badge variant="secondary">{product.gender}</Badge>
+        <div className="space-y-1">
+          <h3 className="line-clamp-2 font-semibold leading-tight">
+            {product.display_name}
+          </h3>
+          <p className="text-sm text-muted-foreground">
+            {product.product?.brand || product.material}
+          </p>
         </div>
       </CardContent>
 
       <CardFooter className="flex items-center justify-between p-4 pt-0">
-        <p className="text-lg font-bold text-primary">
-          ${product.base_price.toFixed(2)}
-          <span className="text-sm font-normal text-muted-foreground"> base</span>
-        </p>
+        <div>
+          <p className="text-lg font-bold text-primary">
+            ${(product.base_price + DEFAULT_CUSTOMIZATION_COST).toFixed(2)}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {t('startingAt')}
+          </p>
+        </div>
         <Button asChild size="sm">
           <Link href={`/products/${product.id}`}>{t('customize')}</Link>
         </Button>
@@ -225,6 +246,8 @@ export function ProductCard({ product }: ProductCardProps) {
   );
 }
 ```
+
+**Pricing Note**: The displayed price includes the default customization (Front Tiny + Back Medium = $9.00 for DTF). See `docs/ONLINE_STORE_PRICING_GUIDE.md` for details.
 
 ---
 
@@ -407,11 +430,20 @@ export default async function ProductPage({ params }: ProductPageProps) {
 
 **File**: `src/components/product/ProductConfigurator.tsx`
 
+Features:
+
+- 3D product viewer with GLTF models
+- **Default configuration**: Front (Tiny) + Back (Medium) pre-selected
+- Auto-calculates price on configuration changes
+- Base Price + Adjustments pricing display
+
 ```typescript
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import dynamic from 'next/dynamic';
 import { useTranslations } from 'next-intl';
+import { useProduct, useMethods, useCalculatePrice } from '@/hooks/use-products';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
@@ -421,143 +453,91 @@ import { MethodSelector } from './MethodSelector';
 import { DesignSelector } from './DesignSelector';
 import { QuantityInput } from './QuantityInput';
 import { PriceSummary } from './PriceSummary';
-import { useCalculatePrice } from '@/hooks/use-products';
-import { useCartStore } from '@/lib/stores/cart';
-import type { ProductDetails, MethodCode, DesignPlacement } from '@/types/api';
+import type { MethodCode, DesignPlacement, PriceCalculationRequest } from '@/types';
+
+// Dynamic import for 3D viewer with SSR disabled
+const ProductViewer = dynamic(
+  () => import('@/components/3d/ProductViewer').then((mod) => mod.ProductViewer),
+  { ssr: false }
+);
 
 interface ProductConfiguratorProps {
-  product: ProductDetails;
+  productId: number;
 }
 
-export function ProductConfigurator({ product }: ProductConfiguratorProps) {
+export function ProductConfigurator({ productId }: ProductConfiguratorProps) {
   const t = useTranslations('products');
-  const addToCart = useCartStore((state) => state.addItem);
+  const { data: product, isLoading } = useProduct(productId);
+  const { data: methods } = useMethods();
   const calculatePrice = useCalculatePrice();
 
   // Configuration state
-  const [selectedSize, setSelectedSize] = useState(product.sizes[0]?.size_code);
-  const [selectedColor, setSelectedColor] = useState(product.colors[0]?.color_name);
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
+  const [selectedColor, setSelectedColor] = useState<string | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<MethodCode>('dtf');
+
+  // Default configuration: Front (Tiny) + Back (Medium) to match ERP pricing model
   const [designs, setDesigns] = useState<DesignPlacement[]>([
-    { area: 'front', design_size: 'medium' },
+    { area: 'front', design_size: 'tiny' },
+    { area: 'back', design_size: 'medium' },
   ]);
   const [quantity, setQuantity] = useState(1);
 
-  // Calculate price when configuration changes
-  const priceRequest = useMemo(() => ({
-    product_id: product.id,
-    size: selectedSize,
-    method: selectedMethod,
-    designs,
-    quantity,
-  }), [product.id, selectedSize, selectedMethod, designs, quantity]);
+  // Compute effective values from product defaults
+  const effectiveSize = selectedSize ?? (product?.sizes[0]?.size_code || '');
+  const effectiveColor = selectedColor ?? (product?.colors[0]?.color_name || '');
 
-  // Trigger price calculation
-  const handleCalculatePrice = () => {
-    calculatePrice.mutate(priceRequest);
-  };
+  // Get color hex for 3D viewer
+  const selectedColorHex = useMemo(() => {
+    if (!product || !effectiveColor) return '#cccccc';
+    const color = product.colors.find((c) => c.color_name === effectiveColor);
+    return color?.hex_code || '#cccccc';
+  }, [product, effectiveColor]);
 
-  // Add to cart
-  const handleAddToCart = () => {
-    if (!calculatePrice.data) return;
+  // Auto-calculate price when configuration changes
+  const prevRequestRef = useRef<string>('');
+  useEffect(() => {
+    if (!product || !effectiveSize) return;
 
-    addToCart({
-      productId: product.id,
-      productName: product.display_name,
-      size: selectedSize,
-      color: selectedColor,
+    const request: PriceCalculationRequest = {
+      product_id: product.id,
+      size: effectiveSize,
       method: selectedMethod,
       designs,
       quantity,
-      unitPrice: calculatePrice.data.per_item_price,
-    });
-  };
+    };
+
+    const requestKey = JSON.stringify(request);
+    if (requestKey !== prevRequestRef.current) {
+      prevRequestRef.current = requestKey;
+      calculatePrice.mutate(request);
+    }
+  }, [product, effectiveSize, selectedMethod, designs, quantity]);
+
+  if (isLoading || !product) return <div>Loading...</div>;
 
   return (
     <div className="grid gap-8 lg:grid-cols-2">
-      {/* Left: 3D Viewer (placeholder for now) */}
-      <div className="aspect-square rounded-lg bg-muted flex items-center justify-center">
-        <div
-          className="h-64 w-64 rounded-lg transition-colors"
-          style={{
-            backgroundColor: product.colors.find(c => c.color_name === selectedColor)?.hex_code || '#cccccc',
-          }}
-        >
-          <div className="flex h-full items-center justify-center text-6xl">
-            {product.type === 'shirt' && '👕'}
-            {product.type === 'hoodie' && '🧥'}
-            {product.type === 'hat' && '🧢'}
-          </div>
-        </div>
+      {/* Left: 3D Viewer */}
+      <div className="aspect-square overflow-hidden rounded-lg bg-muted">
+        <ProductViewer
+          productType={product.type}
+          color={selectedColorHex}
+          productName={product.display_name}
+        />
       </div>
 
       {/* Right: Configuration */}
       <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">{product.display_name}</h1>
-          <p className="mt-2 text-muted-foreground">
-            {product.product.brand} - {product.material}
-          </p>
-        </div>
+        {/* ... Size, Color, Method, Design selectors ... */}
 
-        <Separator />
-
-        {/* Size */}
-        <div>
-          <h3 className="mb-3 font-semibold">Size</h3>
-          <SizeSelector
-            sizes={product.sizes}
-            selected={selectedSize}
-            onSelect={setSelectedSize}
-          />
-        </div>
-
-        {/* Color */}
-        <div>
-          <h3 className="mb-3 font-semibold">Color</h3>
-          <ColorSelector
-            colors={product.colors}
-            selected={selectedColor}
-            onSelect={setSelectedColor}
-          />
-        </div>
-
-        {/* Method */}
-        <div>
-          <h3 className="mb-3 font-semibold">Customization Method</h3>
-          <MethodSelector selected={selectedMethod} onSelect={setSelectedMethod} />
-        </div>
-
-        {/* Design Placements */}
-        <div>
-          <h3 className="mb-3 font-semibold">Design Placements</h3>
-          <DesignSelector
-            method={selectedMethod}
-            designs={designs}
-            onChange={setDesigns}
-          />
-        </div>
-
-        {/* Quantity */}
-        <div>
-          <h3 className="mb-3 font-semibold">Quantity</h3>
-          <QuantityInput value={quantity} onChange={setQuantity} />
-        </div>
-
-        <Separator />
-
-        {/* Price Summary */}
+        {/* Price Summary - Base Price + Adjustments */}
         <Card>
           <CardContent className="p-4">
-            <div className="flex items-center justify-between">
-              <Button variant="outline" onClick={handleCalculatePrice}>
-                Calculate Price
-              </Button>
-
-              {calculatePrice.data && (
-                <PriceSummary pricing={calculatePrice.data} />
-              )}
-            </div>
+            <PriceSummary
+              pricing={calculatePrice.data}
+              isLoading={calculatePrice.isPending}
+            />
           </CardContent>
         </Card>
 
@@ -565,16 +545,17 @@ export function ProductConfigurator({ product }: ProductConfiguratorProps) {
         <Button
           size="lg"
           className="w-full"
-          onClick={handleAddToCart}
-          disabled={!calculatePrice.data}
+          disabled={!calculatePrice.data || calculatePrice.isPending}
         >
-          {t('addToCart')}
+          {t('addToCart')} - ${calculatePrice.data?.total.toFixed(2) || '...'}
         </Button>
       </div>
     </div>
   );
 }
 ```
+
+**Default Designs**: The configurator pre-selects Front (Tiny) + Back (Medium) to match the ERP's base price calculation. Users can modify or remove these placements, and the price adjusts accordingly.
 
 ---
 
@@ -624,24 +605,24 @@ export function useFilters() {
 
 ## Deliverables Checklist
 
-- [ ] Products listing page
-- [ ] Product grid component
-- [ ] Product card component
-- [ ] Product filters component
+- [x] Products listing page
+- [x] Product grid component
+- [x] Product card component (with static thumbnails)
+- [x] Product filters component
 - [ ] Product sort component
 - [ ] Mobile filter drawer
-- [ ] Product detail page
-- [ ] Product configurator component
-- [ ] Size selector component
-- [ ] Color selector component
-- [ ] Method selector component
-- [ ] Design selector component
-- [ ] Quantity input component
-- [ ] Price summary component
-- [ ] useFilters hook
-- [ ] SEO metadata for products
-- [ ] Loading states/skeletons
-- [ ] Empty state for no results
+- [x] Product detail page
+- [x] Product configurator component
+- [x] Size selector component
+- [x] Color selector component
+- [x] Method selector component
+- [x] Design selector component (with default sizes per area)
+- [x] Quantity input component
+- [x] Price summary component (Base Price + Adjustments model)
+- [x] useFilters hook
+- [x] SEO metadata for products
+- [x] Loading states/skeletons
+- [x] Empty state for no results
 - [ ] URL-based filter state
 
 ---

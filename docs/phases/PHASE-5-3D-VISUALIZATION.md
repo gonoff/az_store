@@ -1,21 +1,21 @@
 # Phase 5: 3D Product Visualization
 
-**Status**: ⏳ Pending
+**Status**: ✅ Complete
 **Dependencies**: Phase 4 (Product Catalog)
 
 ## Overview
 
-Implement interactive 3D product visualization using React Three Fiber with programmatic models (replaceable with GLTF later).
+Interactive 3D product visualization using React Three Fiber with GLTF models.
 
 ## Goals
 
-- React Three Fiber setup
-- Programmatic 3D shirt/hoodie models
-- Dynamic color changing
-- Interactive rotation controls
-- Design placement preview
-- Responsive canvas
-- Performance optimization
+- [x] React Three Fiber setup
+- [x] GLTF model loading (t-shirt, polo)
+- [x] Dynamic color changing with 3D-safe adjustments
+- [x] Interactive rotation controls
+- [ ] Design placement preview (future)
+- [x] Responsive canvas
+- [x] Performance optimization (SSR disabled, static thumbnails for listings)
 
 ---
 
@@ -94,95 +94,83 @@ export function ProductCanvasSkeleton() {
 
 ---
 
-## Step 5.3: Programmatic Shirt Model
+## Step 5.3: GLTF Shirt Model
 
 **File**: `src/components/3d/ShirtModel.tsx`
+
+Uses GLTF models with dynamic color application and black color adjustment for better 3D visibility.
 
 ```typescript
 'use client';
 
-import { useRef, useMemo } from 'react';
+import { useRef, useEffect } from 'react';
 import { useFrame } from '@react-three/fiber';
+import { useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
 
 interface ShirtModelProps {
   color: string;
-  designTexture?: string;
+  modelPath?: string;
 }
 
-export function ShirtModel({ color, designTexture }: ShirtModelProps) {
-  const meshRef = useRef<THREE.Group>(null);
+// Adjust pure black to prevent "void black" appearance in 3D
+function adjustColorFor3D(hexColor: string): string {
+  const color = new THREE.Color(hexColor);
+  // Only adjust if ALL color channels are very low (true black)
+  if (color.r < 0.08 && color.g < 0.08 && color.b < 0.08) {
+    return '#1a1a1a'; // Very dark gray instead of pure black
+  }
+  return hexColor;
+}
 
-  // Create shirt geometry programmatically
-  const shirtGeometry = useMemo(() => {
-    // Main body - simplified t-shirt shape
-    const shape = new THREE.Shape();
+const DEFAULT_MODEL = '/models/t_shirt.glb';
 
-    // Outline of shirt front (simplified)
-    shape.moveTo(-0.8, -1.2);  // Bottom left
-    shape.lineTo(-0.8, 0.3);   // Left side
-    shape.lineTo(-1.2, 0.5);   // Left shoulder
-    shape.lineTo(-1.2, 0.8);   // Left sleeve top
-    shape.lineTo(-0.5, 0.8);   // Armpit left
-    shape.lineTo(-0.3, 1.0);   // Neck left
-    shape.lineTo(0.3, 1.0);    // Neck right
-    shape.lineTo(0.5, 0.8);    // Armpit right
-    shape.lineTo(1.2, 0.8);    // Right sleeve top
-    shape.lineTo(1.2, 0.5);    // Right shoulder
-    shape.lineTo(0.8, 0.3);    // Right side
-    shape.lineTo(0.8, -1.2);   // Bottom right
-    shape.lineTo(-0.8, -1.2);  // Back to start
+export function ShirtModel({ color, modelPath = DEFAULT_MODEL }: ShirtModelProps) {
+  const groupRef = useRef<THREE.Group>(null);
+  const { scene } = useGLTF(modelPath);
+  const adjustedColor = adjustColorFor3D(color);
 
-    const extrudeSettings = {
-      steps: 1,
-      depth: 0.15,
-      bevelEnabled: true,
-      bevelThickness: 0.02,
-      bevelSize: 0.02,
-      bevelSegments: 2,
-    };
-
-    return new THREE.ExtrudeGeometry(shape, extrudeSettings);
-  }, []);
-
-  // Material with the selected color
-  const material = useMemo(() => {
-    return new THREE.MeshStandardMaterial({
-      color: new THREE.Color(color),
-      roughness: 0.8,
-      metalness: 0.1,
+  // Apply color to the model's materials
+  useEffect(() => {
+    scene.traverse((child) => {
+      if (child instanceof THREE.Mesh && child.material) {
+        if (Array.isArray(child.material)) {
+          child.material = child.material.map((mat) => {
+            const cloned = mat.clone();
+            cloned.color = new THREE.Color(adjustedColor);
+            return cloned;
+          });
+        } else {
+          child.material = child.material.clone();
+          child.material.color = new THREE.Color(adjustedColor);
+        }
+      }
     });
-  }, [color]);
+  }, [scene, adjustedColor]);
 
-  // Gentle rotation animation
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.y = Math.sin(state.clock.elapsedTime * 0.3) * 0.1;
+  // Slow rotation animation
+  useFrame((_, delta) => {
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.2;
     }
   });
 
   return (
-    <group ref={meshRef}>
-      {/* Front of shirt */}
-      <mesh geometry={shirtGeometry} material={material} position={[0, 0, 0]} />
-
-      {/* Back of shirt (slightly behind) */}
-      <mesh
-        geometry={shirtGeometry}
-        material={material}
-        position={[0, 0, -0.15]}
-        rotation={[0, Math.PI, 0]}
-      />
-
-      {/* Collar */}
-      <mesh position={[0, 0.95, 0.075]}>
-        <torusGeometry args={[0.25, 0.05, 8, 32, Math.PI]} />
-        <meshStandardMaterial color={color} roughness={0.8} />
-      </mesh>
+    <group ref={groupRef}>
+      <primitive object={scene} scale={4} />
     </group>
   );
 }
+
+// Preload models for better performance
+useGLTF.preload('/models/t_shirt.glb');
+useGLTF.preload('/models/polo_t-shirt.glb');
 ```
+
+**Models**:
+
+- `/public/models/t_shirt.glb` - Standard t-shirt
+- `/public/models/polo_t-shirt.glb` - Polo shirt
 
 ---
 
@@ -256,64 +244,87 @@ export function HoodieModel({ color }: HoodieModelProps) {
 
 **File**: `src/components/3d/ProductViewer.tsx`
 
+Routes to correct GLTF model based on product name (e.g., "polo" → polo model).
+
 ```typescript
 'use client';
 
-import { Suspense, lazy } from 'react';
-import dynamic from 'next/dynamic';
-import { Skeleton } from '@/components/ui/skeleton';
-import type { ProductType } from '@/types/api';
-
-// Dynamic import to avoid SSR issues
-const ProductCanvas = dynamic(
-  () => import('./ProductCanvas').then((mod) => mod.ProductCanvas),
-  { ssr: false, loading: () => <Skeleton className="aspect-square w-full rounded-lg" /> }
-);
-
-const ShirtModel = dynamic(
-  () => import('./ShirtModel').then((mod) => mod.ShirtModel),
-  { ssr: false }
-);
-
-const HoodieModel = dynamic(
-  () => import('./HoodieModel').then((mod) => mod.HoodieModel),
-  { ssr: false }
-);
+import { Suspense, useState, useEffect } from 'react';
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls, Center, Environment, ContactShadows } from '@react-three/drei';
+import { ShirtModel } from './ShirtModel';
+import type { ProductType } from '@/types';
 
 interface ProductViewerProps {
   productType: ProductType;
   color: string;
-  designAreas?: Array<{
-    area: 'front' | 'back' | 'sleeve';
-    designSize: string;
-  }>;
+  productName?: string;
 }
 
-export function ProductViewer({ productType, color, designAreas }: ProductViewerProps) {
-  const renderModel = () => {
-    switch (productType) {
-      case 'shirt':
-        return <ShirtModel color={color} />;
-      case 'hoodie':
-        return <HoodieModel color={color} />;
-      default:
-        // Fallback for unsupported types
-        return (
-          <mesh>
-            <boxGeometry args={[1, 1, 1]} />
-            <meshStandardMaterial color={color} />
-          </mesh>
-        );
+// Get the correct model path based on product name
+function getModelPath(productName?: string): string {
+  if (productName) {
+    const nameLower = productName.toLowerCase();
+    if (nameLower.includes('polo')) {
+      return '/models/polo_t-shirt.glb';
     }
-  };
+  }
+  return '/models/t_shirt.glb';
+}
+
+export function ProductViewer({ productType, color, productName }: ProductViewerProps) {
+  // Ensure client-side only rendering to prevent SSR/hydration mismatch
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return (
+      <div className="flex h-full w-full items-center justify-center bg-muted">
+        <div className="text-muted-foreground">Loading 3D viewer...</div>
+      </div>
+    );
+  }
+
+  const modelPath = getModelPath(productName);
 
   return (
-    <ProductCanvas>
-      {renderModel()}
-    </ProductCanvas>
+    <div className="h-full w-full">
+      <Canvas camera={{ position: [0, 0, 5], fov: 45 }} gl={{ antialias: true }} dpr={[1, 2]}>
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[5, 5, 5]} intensity={1} castShadow />
+        <directionalLight position={[-5, 5, -5]} intensity={0.5} />
+        <Environment preset="studio" />
+
+        <Suspense fallback={<LoadingPlaceholder />}>
+          <Center>
+            <ShirtModel color={color} modelPath={modelPath} />
+          </Center>
+        </Suspense>
+
+        <ContactShadows position={[0, -1.5, 0]} opacity={0.4} scale={5} blur={2} />
+        <OrbitControls
+          enableZoom={true}
+          enablePan={false}
+          minPolarAngle={Math.PI / 4}
+          maxPolarAngle={Math.PI / 1.5}
+          minDistance={3}
+          maxDistance={8}
+        />
+      </Canvas>
+    </div>
   );
 }
 ```
+
+**Key Features**:
+
+- SSR disabled via `useState` + `useEffect` pattern
+- Model routing based on product name
+- Studio environment for realistic lighting
+- Orbit controls with zoom limits
 
 ---
 
@@ -520,31 +531,9 @@ export const HoodieGray: Story = {
 
 ## Future Improvements
 
-### GLTF Model Loading
-
-When GLTF models are available, update the models to use `useGLTF`:
-
-```typescript
-import { useGLTF } from '@react-three/drei';
-
-export function ShirtModelGLTF({ color }: { color: string }) {
-  const { nodes, materials } = useGLTF('/models/shirt.glb');
-
-  // Clone material and update color
-  const material = materials.fabric.clone();
-  material.color.set(color);
-
-  return (
-    <mesh geometry={nodes.Shirt.geometry} material={material} />
-  );
-}
-
-useGLTF.preload('/models/shirt.glb');
-```
-
 ### Design Texture Application
 
-For applying uploaded designs as textures:
+For applying uploaded designs as textures (planned for checkout phase):
 
 ```typescript
 import { Decal, useTexture } from '@react-three/drei';
@@ -563,40 +552,83 @@ function DesignDecal({ url, position, scale }: DesignDecalProps) {
 }
 ```
 
+### Additional Models
+
+Future models to add:
+
+- Hoodie (`/models/hoodie.glb`)
+- Hat (`/models/hat.glb`)
+- Bag (`/models/bag.glb`)
+
 ---
 
 ## Deliverables Checklist
 
-- [ ] React Three Fiber dependencies installed
-- [ ] ProductCanvas wrapper component
-- [ ] ShirtModel programmatic model
-- [ ] HoodieModel programmatic model
-- [ ] ProductViewer component
-- [ ] Dynamic imports (no SSR)
+- [x] React Three Fiber dependencies installed
+- [x] ProductViewer component with Canvas
+- [x] ShirtModel with GLTF loading
+- [ ] HoodieModel (uses fallback currently)
+- [x] Dynamic imports (no SSR)
+- [x] Black color adjustment for 3D visibility
+- [x] Model routing (polo vs t-shirt)
 - [ ] Color overlay component
 - [ ] Design placement overlay
 - [ ] View controls component
-- [ ] Loading skeleton
-- [ ] Integration with ProductConfigurator
+- [x] Loading state
+- [x] Integration with ProductConfigurator
 - [ ] Storybook stories for 3D components
-- [ ] Performance optimization
+- [x] Performance optimization (static thumbnails for listings)
 
 ---
 
-## Files to Create
+## Files Created
 
-| File                                           | Purpose               |
-| ---------------------------------------------- | --------------------- |
-| `src/components/3d/ProductCanvas.tsx`          | 3D canvas wrapper     |
-| `src/components/3d/ShirtModel.tsx`             | Programmatic shirt    |
-| `src/components/3d/HoodieModel.tsx`            | Programmatic hoodie   |
-| `src/components/3d/ProductViewer.tsx`          | Main viewer component |
-| `src/components/3d/ColorOverlay.tsx`           | Color indicator       |
-| `src/components/3d/DesignPlacementOverlay.tsx` | Design badges         |
-| `src/components/3d/ViewControls.tsx`           | Zoom/rotate controls  |
-| `src/components/3d/ProductViewerSkeleton.tsx`  | Loading state         |
-| `src/components/3d/index.ts`                   | Barrel exports        |
-| `src/components/3d/__stories__/*.stories.tsx`  | Storybook stories     |
+| File                                  | Purpose                        | Status |
+| ------------------------------------- | ------------------------------ | ------ |
+| `src/components/3d/ProductViewer.tsx` | Main viewer with Canvas        | ✅     |
+| `src/components/3d/ShirtModel.tsx`    | GLTF model loader with colors  | ✅     |
+| `public/models/t_shirt.glb`           | T-shirt 3D model               | ✅     |
+| `public/models/polo_t-shirt.glb`      | Polo shirt 3D model            | ✅     |
+| `public/images/products/*.png`        | Static thumbnails for listings | ✅     |
+
+## Files Pending
+
+| File                                           | Purpose              |
+| ---------------------------------------------- | -------------------- |
+| `src/components/3d/ColorOverlay.tsx`           | Color indicator      |
+| `src/components/3d/DesignPlacementOverlay.tsx` | Design badges        |
+| `src/components/3d/ViewControls.tsx`           | Zoom/rotate controls |
+| `src/components/3d/__stories__/*.stories.tsx`  | Storybook stories    |
+
+---
+
+## Technical Notes
+
+### WebGL Context Limitations
+
+Browsers limit WebGL contexts to ~8-16 per page. Attempted approaches:
+
+1. **3D on all product cards** - Failed (context limit exceeded)
+2. **Hover-only 3D loading** - Rejected (poor UX)
+3. **Headless thumbnail generation** - Failed (`gl.texImage3D` not supported)
+
+**Solution**: Static PNG thumbnails for product listings, 3D only on detail page.
+
+### SSR/Hydration Issues
+
+Three.js causes hydration mismatches with SSR. Fixed by:
+
+1. `useState(false)` + `useEffect(() => setMounted(true))`
+2. `dynamic()` import with `ssr: false`
+3. Show loading placeholder until mounted
+
+### Color Adjustments
+
+Pure black (#000000) appears as "void black" in 3D. Solution:
+
+- Check if all RGB channels < 0.08
+- Replace with very dark gray (#1a1a1a)
+- Does NOT affect dark colors like navy (#001f3f)
 
 ---
 
